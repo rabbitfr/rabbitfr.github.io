@@ -7,6 +7,11 @@ define(['exports', 'kotlin', 'Phaser'], function (_, Kotlin, $module$Phaser) {
   var ensureNotNull = Kotlin.ensureNotNull;
   var Scene = $module$Phaser.Scene;
   var Game = $module$Phaser.Game;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
+  var IntRange = Kotlin.kotlin.ranges.IntRange;
+  var IllegalArgumentException_init = Kotlin.kotlin.IllegalArgumentException_init_pdl1vj$;
+  var print = Kotlin.kotlin.io.print_s8jyv4$;
   MainScene.prototype = Object.create(Scene.prototype);
   MainScene.prototype.constructor = MainScene;
   function GameConfig(width, height, type, backgroundColor, parent, pixelArt, roundPixels, scene) {
@@ -178,36 +183,6 @@ define(['exports', 'kotlin', 'Phaser'], function (_, Kotlin, $module$Phaser) {
     simpleName: 'GraphicsFillStyle',
     interfaces: []
   };
-  function Dungeon(width, height) {
-    this.width = width;
-    this.height = height;
-  }
-  Dungeon.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Dungeon',
-    interfaces: []
-  };
-  Dungeon.prototype.component1 = function () {
-    return this.width;
-  };
-  Dungeon.prototype.component2 = function () {
-    return this.height;
-  };
-  Dungeon.prototype.copy_tdonws$ = function (width, height) {
-    return new Dungeon(width === void 0 ? this.width : width, height === void 0 ? this.height : height);
-  };
-  Dungeon.prototype.toString = function () {
-    return 'Dungeon(width=' + Kotlin.toString(this.width) + (', height=' + Kotlin.toString(this.height)) + ')';
-  };
-  Dungeon.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.width) | 0;
-    result = result * 31 + Kotlin.hashCode(this.height) | 0;
-    return result;
-  };
-  Dungeon.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.width, other.width) && Kotlin.equals(this.height, other.height)))));
-  };
   function MainScene() {
     this.map_7rqlsu$_0 = this.map_7rqlsu$_0;
     this.cursors_1f7at9$_0 = this.cursors_1f7at9$_0;
@@ -273,10 +248,13 @@ define(['exports', 'kotlin', 'Phaser'], function (_, Kotlin, $module$Phaser) {
     }
   });
   MainScene.prototype.create = function () {
+    var tmp$;
     this.add.text(50, 50, 'RPG Demo').setOrigin(0, 0).setShadow(1, 1, '#5588EE', 0, true, true);
-    var dungeon = new Dungeon(200, 200);
+    var dungeon = new Dungeon(49, 49);
+    var builder = new DungeonBuilder();
+    builder.generate_p963dh$(dungeon);
     console.log(dungeon);
-    this.map_0 = this.make.tilemap(new TilemapConfig('map', null, 32, 32, 100, 100, false));
+    this.map_0 = this.make.tilemap(new TilemapConfig('map', null, 32, 32, dungeon.width, dungeon.height, false));
     console.log(this.map_0);
     var $receiver = this.map_0.addTilesetImage('wall', 'wall', 32, 32, 0, 0);
     println('added wall tileset');
@@ -290,6 +268,11 @@ define(['exports', 'kotlin', 'Phaser'], function (_, Kotlin, $module$Phaser) {
     this.layer_0.fill(40);
     this.map_0.putTileAt(39, 0, 0);
     this.map_0.putTileAt(39, 20, 20);
+    tmp$ = dungeon.rooms.iterator();
+    while (tmp$.hasNext()) {
+      var room = tmp$.next();
+      this.map_0.fill(585, room.x, room.y, room.width, room.height);
+    }
     console.log(this.map_0);
     this.player_0 = this.add.ellipse(0, 0, 32, 32, 15583808, 1);
     this.player_0.x = this.map_0.tileToWorldX(10);
@@ -366,17 +349,240 @@ define(['exports', 'kotlin', 'Phaser'], function (_, Kotlin, $module$Phaser) {
     var game = new Game(config);
     console.log(game);
   }
+  var Array_0 = Array;
+  var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
+  function Dungeon(width, height) {
+    this.width = width;
+    this.height = height;
+    var array = Array_0(this.height);
+    var tmp$;
+    tmp$ = array.length - 1 | 0;
+    for (var i = 0; i <= tmp$; i++) {
+      var array_0 = new Int32Array(this.width);
+      var tmp$_0;
+      tmp$_0 = array_0.length - 1 | 0;
+      for (var i_0 = 0; i_0 <= tmp$_0; i_0++) {
+        array_0[i_0] = Tiles$Companion_getInstance().WALL;
+      }
+      array[i] = array_0;
+    }
+    this.tiles = array;
+    this.rooms = ArrayList_init();
+  }
+  Dungeon.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Dungeon',
+    interfaces: []
+  };
+  Dungeon.prototype.component1 = function () {
+    return this.width;
+  };
+  Dungeon.prototype.component2 = function () {
+    return this.height;
+  };
+  Dungeon.prototype.copy_vux9f0$ = function (width, height) {
+    return new Dungeon(width === void 0 ? this.width : width, height === void 0 ? this.height : height);
+  };
+  Dungeon.prototype.toString = function () {
+    return 'Dungeon(width=' + Kotlin.toString(this.width) + (', height=' + Kotlin.toString(this.height)) + ')';
+  };
+  Dungeon.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.width) | 0;
+    result = result * 31 + Kotlin.hashCode(this.height) | 0;
+    return result;
+  };
+  Dungeon.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.width, other.width) && Kotlin.equals(this.height, other.height)))));
+  };
+  function Tiles() {
+    Tiles$Companion_getInstance();
+  }
+  function Tiles$Companion() {
+    Tiles$Companion_instance = this;
+    this.EMPTY = 0;
+    this.WALL = 1;
+    this.FLOOR = 2;
+  }
+  Tiles$Companion.$metadata$ = {
+    kind: Kind_OBJECT,
+    simpleName: 'Companion',
+    interfaces: []
+  };
+  var Tiles$Companion_instance = null;
+  function Tiles$Companion_getInstance() {
+    if (Tiles$Companion_instance === null) {
+      new Tiles$Companion();
+    }
+    return Tiles$Companion_instance;
+  }
+  Tiles.$metadata$ = {
+    kind: Kind_INTERFACE,
+    simpleName: 'Tiles',
+    interfaces: []
+  };
+  function Room(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+  Room.prototype.valueInRange_qt1dr2$ = function (value, min, max) {
+    return min <= value && value <= max;
+  };
+  Room.prototype.intersect_726bj4$ = function (otherRoom) {
+    var xOverlap = this.valueInRange_qt1dr2$(this.x, otherRoom.x, otherRoom.x + otherRoom.width | 0) || this.valueInRange_qt1dr2$(otherRoom.x, this.x, this.x + otherRoom.width | 0);
+    var yOverlap = this.valueInRange_qt1dr2$(this.y, otherRoom.y, otherRoom.y + otherRoom.height | 0) || this.valueInRange_qt1dr2$(otherRoom.y, this.y, this.y + this.height | 0);
+    return xOverlap && yOverlap;
+  };
+  Room.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Room',
+    interfaces: []
+  };
+  Room.prototype.component1 = function () {
+    return this.x;
+  };
+  Room.prototype.component2 = function () {
+    return this.y;
+  };
+  Room.prototype.component3 = function () {
+    return this.width;
+  };
+  Room.prototype.component4 = function () {
+    return this.height;
+  };
+  Room.prototype.copy_tjonv8$ = function (x, y, width, height) {
+    return new Room(x === void 0 ? this.x : x, y === void 0 ? this.y : y, width === void 0 ? this.width : width, height === void 0 ? this.height : height);
+  };
+  Room.prototype.toString = function () {
+    return 'Room(x=' + Kotlin.toString(this.x) + (', y=' + Kotlin.toString(this.y)) + (', width=' + Kotlin.toString(this.width)) + (', height=' + Kotlin.toString(this.height)) + ')';
+  };
+  Room.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.x) | 0;
+    result = result * 31 + Kotlin.hashCode(this.y) | 0;
+    result = result * 31 + Kotlin.hashCode(this.width) | 0;
+    result = result * 31 + Kotlin.hashCode(this.height) | 0;
+    return result;
+  };
+  Room.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.x, other.x) && Kotlin.equals(this.y, other.y) && Kotlin.equals(this.width, other.width) && Kotlin.equals(this.height, other.height)))));
+  };
+  function DungeonBuilder() {
+    this.numRoomTries = 200;
+    this.extraConnectorChance = 20;
+    this.roomExtraSize = 0;
+    this.windingPercent = 0;
+    this.currentRegion = -1;
+    this.regions_96kiwz$_0 = this.regions_96kiwz$_0;
+    this.dungeon_e5k23c$_0 = this.dungeon_e5k23c$_0;
+  }
+  Object.defineProperty(DungeonBuilder.prototype, 'regions', {
+    get: function () {
+      if (this.regions_96kiwz$_0 == null)
+        return throwUPAE('regions');
+      return this.regions_96kiwz$_0;
+    },
+    set: function (regions) {
+      this.regions_96kiwz$_0 = regions;
+    }
+  });
+  Object.defineProperty(DungeonBuilder.prototype, 'dungeon', {
+    get: function () {
+      if (this.dungeon_e5k23c$_0 == null)
+        return throwUPAE('dungeon');
+      return this.dungeon_e5k23c$_0;
+    },
+    set: function (dungeon) {
+      this.dungeon_e5k23c$_0 = dungeon;
+    }
+  });
+  DungeonBuilder.prototype.generate_p963dh$ = function (dungeon) {
+    this.dungeon = dungeon;
+    if (dungeon.width % 2 === 0 || dungeon.height % 2 === 0)
+      throw IllegalArgumentException_init('The dungeon must be odd-sized.');
+    var array = Array_0(dungeon.height);
+    var tmp$;
+    tmp$ = array.length - 1 | 0;
+    for (var i = 0; i <= tmp$; i++) {
+      var array_0 = new Int32Array(dungeon.height);
+      var tmp$_0;
+      tmp$_0 = array_0.length - 1 | 0;
+      for (var i_0 = 0; i_0 <= tmp$_0; i_0++) {
+        array_0[i_0] = Tiles$Companion_getInstance().WALL;
+      }
+      array[i] = array_0;
+    }
+    this.regions = array;
+    this.addRooms();
+  };
+  DungeonBuilder.prototype.addRooms = function () {
+    var tmp$;
+    println('adding rooms...');
+    for (var i = this.numRoomTries; i >= 0; i--) {
+      var size = (random(IntRange.Companion, 1, 3 + this.roomExtraSize | 0) * 2 | 0) + 1 | 0;
+      var rectangularity = random(IntRange.Companion, 0, 1 + (size / 2 | 0) | 0) * 2 | 0;
+      var width = size;
+      var height = size;
+      switch (random(IntRange.Companion, 0, 1)) {
+        case 0:
+          width = width + rectangularity | 0;
+          break;
+        case 1:
+          height = height + rectangularity | 0;
+          break;
+      }
+      var x = (random(IntRange.Companion, 0, (this.dungeon.width - 2 - width | 0) / 2 | 0) * 2 | 0) + 1 | 0;
+      var y = (random(IntRange.Companion, 0, (this.dungeon.height - 2 - height | 0) / 2 | 0) * 2 | 0) + 1 | 0;
+      var room = new Room(x, y, width, height);
+      var overlaps = false;
+      tmp$ = this.dungeon.rooms.iterator();
+      while (tmp$.hasNext()) {
+        var other = tmp$.next();
+        if (room.intersect_726bj4$(other)) {
+          overlaps = true;
+          println('Rooms are ovelapping ' + room + ' ' + other + ' ');
+          break;
+        }
+      }
+      if (overlaps) {
+        continue;
+      }
+      this.dungeon.rooms.add_11rb$(room);
+      console.log('numRoomTries ' + i + ' size ' + size + ' rectangularity ' + rectangularity + ' ' + width + ' x ' + height);
+    }
+    print('added ' + this.dungeon.rooms.size + ' rooms');
+  };
+  DungeonBuilder.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'DungeonBuilder',
+    interfaces: []
+  };
+  function random($receiver, start, endInclusive) {
+    return numberToInt(Math.random() * (endInclusive + 1 - start | 0) + start);
+  }
+  function random_0($receiver) {
+    return numberToInt(Math.random() * ($receiver.endInclusive + 1 - $receiver.start | 0) + $receiver.start);
+  }
   var package$rpg = _.rpg || (_.rpg = {});
   package$rpg.GameConfig = GameConfig;
   package$rpg.TilemapConfig = TilemapConfig;
   package$rpg.GraphicsStyles = GraphicsStyles;
   package$rpg.GraphicsLineStyle = GraphicsLineStyle;
   package$rpg.GraphicsFillStyle = GraphicsFillStyle;
-  package$rpg.Dungeon = Dungeon;
   package$rpg.MainScene_init_61zpoe$ = MainScene_init;
   package$rpg.MainScene_init_lc5dwj$ = MainScene_init_0;
   package$rpg.MainScene = MainScene;
   package$rpg.main_kand9s$ = main;
+  package$rpg.Dungeon = Dungeon;
+  Object.defineProperty(Tiles, 'Companion', {
+    get: Tiles$Companion_getInstance
+  });
+  package$rpg.Tiles = Tiles;
+  package$rpg.Room = Room;
+  package$rpg.DungeonBuilder = DungeonBuilder;
+  package$rpg.random_9tsm8a$ = random_0;
   main([]);
   Kotlin.defineModule('rpg', _);
   return _;
